@@ -1,0 +1,28 @@
+# Open Spaceflight Research
+
+> Open data on why rockets fail and whether the fixes worked: 45 failures since 1957, 61 spaceflight milestones, and orbital launch counts for every year from 2010 to 2026. Data current to 9 October 2026. Data, figures and text are CC BY-SA 4.0.
+
+Estimates (price per kg, TRL, some budgets and private finances) are labelled as estimates. Every other figure is a dated event with a source.
+
+## Pages
+
+- [Open Spaceflight Research: launch failures, milestones and data](/): Open data on why rockets fail and whether the fixes worked: 45 failures since 1957, 61 spaceflight milestones, and orbital launch counts for every year from 2010 to 2026.
+- [Spaceflight milestones: 61 firsts in space history, 1232–2026](/spaceflight-milestones/): Timeline of 61 spaceflight firsts, from the first rockets and Sputnik to Artemis II and Starship's first orbit: the date, who did it, the vehicle and why each one matters.
+- [Rocket and spacecraft failures 1957–2026: causes and lessons](/rocket-launch-failures/): 45 rocket and spacecraft failures from 1957 to 2026, with the root cause, the lesson learned, the fix and whether it held on later flights. Plus every orbital launch failure of 2025 and 2026.
+- [Orbital launches per year 2010–2026, by country and rocket](/orbital-launches/): How many orbital launches the world made each year since 2010 and how many succeeded: 330 in 2025, 239 in 2026 to 7 October. Launches by country and by launch provider.
+
+## Datasets
+
+- [Changelog](/datasets/changelog/): Every edit in this revision, with its source (42 records)
+- [Price by contract](/datasets/cost_model/): Contract price ÷ payload capacity, by contract type (estimates) (16 records)
+- [Failures, 1957–2026](/datasets/failures/): 45 failures from 1957 to 2026: cause, lesson learned, source, failure-mode codes, and whether the fix held (45 records)
+- [Funding](/datasets/funding/): Government space budgets (official) and private revenue and capital raised (estimates) (13 records)
+- [Launches per year](/datasets/launch_cadence/): Orbital launches per year 2010–2026, with SpaceX share and successes, failures and partial failures (2026 partial) (17 records)
+- [Price per kg by rocket](/datasets/launch_costs/): Approximate price per kg to LEO by vehicle (estimates) (15 records)
+- [Launch failures, 2025–2026](/datasets/launch_failures_2025_2026/): Every orbital launch failure in 2025 and 2026 to date (Starship test flights excluded) (18 records)
+- [Launches by country](/datasets/launch_share/): Launches by country or bloc, 2025 and 2026 to date (7 records)
+- [Launch providers and agencies](/datasets/organizations/): Launch providers and agencies: vehicles, launches 2025/2026, reuse status (20 records)
+- [Spaceflight firsts](/datasets/spaceflight_milestones/): 61 spaceflight firsts, from c.1232 to 2026 (61 records)
+- [Gaps for crewed Mars flights](/datasets/tech_gaps/): Readiness of 12 capabilities for crewed interplanetary flight (our TRL estimates), with 2026 evidence (12 records)
+- [OSALR failure-mode codes](/datasets/failure_mode_taxonomy/): Failure-mode codes: 8 classes and the modes under them (36 records)
+- [OSALR submission form](/datasets/osalr_intake_template/): Fields and instructions for submitting a new failure (24 records)

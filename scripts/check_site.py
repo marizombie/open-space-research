@@ -1,6 +1,7 @@
 """Validate generated assets, local links and complete dataset/database coverage."""
 import csv
 import json
+import re
 import sqlite3
 from html.parser import HTMLParser
 from pathlib import Path
@@ -17,6 +18,12 @@ class Page(HTMLParser):
         self.duplicates = set()
         self.payload = []
         self.in_payload = False
+        self.h1 = 0
+        self.title = ""
+        self.in_title = False
+        self.description = ""
+        self.structured = []
+        self.in_structured = False
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
@@ -30,14 +37,29 @@ class Page(HTMLParser):
                 self.links.append(attrs[key])
         if tag == "script" and identifier == "datasets":
             self.in_payload = True
+        if tag == "script" and attrs.get("type") == "application/ld+json":
+            self.in_structured = True
+            self.structured.append("")
+        if tag == "h1":
+            self.h1 += 1
+        if tag == "title":
+            self.in_title = True
+        if tag == "meta" and attrs.get("name") == "description":
+            self.description = attrs.get("content", "")
 
     def handle_endtag(self, tag):
         if tag == "script":
-            self.in_payload = False
+            self.in_payload = self.in_structured = False
+        if tag == "title":
+            self.in_title = False
 
     def handle_data(self, data):
         if self.in_payload:
             self.payload.append(data)
+        if self.in_structured:
+            self.structured[-1] += data
+        if self.in_title:
+            self.title += data
 
 
 def read_csv(filename):
@@ -62,6 +84,28 @@ def validate_site(root=ROOT):
         pages[filename.resolve()] = parsed
         errors.extend(f"Duplicate element ID in {filename.relative_to(site)}: {identifier}" for identifier in parsed.duplicates)
     page = pages[(site / "index.html").resolve()]
+    titles = {}
+    for filename, parsed in pages.items():
+        name = filename.relative_to(site)
+        if parsed.h1 != 1:
+            errors.append(f"Expected one <h1> in {name}, found {parsed.h1}")
+        if not parsed.title.strip() or not parsed.description.strip():
+            errors.append(f"Missing <title> or meta description in {name}")
+        titles.setdefault(parsed.title.strip(), []).append(str(name))
+        for block in parsed.structured:
+            try:
+                json.loads(block)
+            except ValueError:
+                errors.append(f"Invalid JSON-LD in {name}")
+    errors.extend(f"Duplicate <title> on {', '.join(names)}" for names in titles.values() if len(names) > 1)
+    if not (site / "robots.txt").is_file():
+        errors.append("Missing robots.txt")
+    sitemap = site / "sitemap.xml"
+    if sitemap.is_file():
+        listed = {urlsplit(loc).path.lstrip("/") for loc in re.findall(r"<loc>([^<]+)</loc>", sitemap.read_text(encoding="utf-8"))}
+        published = {"" if f.parent == site else f.parent.relative_to(site).as_posix() + "/" for f in pages}
+        errors.extend(f"Page missing from sitemap.xml: /{path}" for path in sorted(published - listed))
+        errors.extend(f"sitemap.xml lists a page that does not exist: /{path}" for path in sorted(listed - published))
     for filename, parsed in pages.items():
         for link in parsed.links:
             url = urlsplit(link)

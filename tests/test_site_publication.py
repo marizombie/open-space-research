@@ -1,10 +1,18 @@
 """Prevent raw database exposure and incomplete dataset pages during publication."""
 from pathlib import Path
 import shutil
+import subprocess
+import sys
 import tempfile
 import unittest
 
 from scripts.check_site import ROOT, validate_site
+
+
+def setUpModule():
+    # osalr.db is gitignored, so a fresh clone has to build it before the checks can run.
+    if not (ROOT / "osalr" / "osalr.db").exists():
+        subprocess.run([sys.executable, str(ROOT / "osalr" / "build_osalr.py")], check=True)
 
 
 class PublicationTests(unittest.TestCase):
