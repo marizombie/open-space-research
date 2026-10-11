@@ -1,4 +1,4 @@
-"""make_figures.py — renders the 7 report figures from data/*.csv and osalr/ into images/.
+"""make_figures.py — renders the 8 report figures from data/*.csv and osalr/ into images/.
 Run from the repository root:  python scripts/make_figures.py"""
 import os, sys
 os.chdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
@@ -96,7 +96,7 @@ ax.axvline(1957.76, color=GREY, lw=0.8, ls="--", zorder=1)
 ax.text(1957.9, len(LANES)-0.45, "Sputnik 1", fontsize=SMALL, color="#555", va="bottom")
 ax.legend(handles=[Line2D([], [], marker="o", ls="", color=CC[c], ms=9, label=c) for c in CATS],
           loc="upper center", bbox_to_anchor=(0.45, -0.09), frameon=False, fontsize=SMALL, ncol=5)
-axL.set_title(f"{len(m)} spaceflight firsts, c.1232 – Sep 2026, by nation or agency (number = 'num' column in spaceflight_milestones.csv)", loc="left", fontsize=BASE, x=0)
+axL.set_title(f"{len(m)} spaceflight firsts, c.1232 to Sep 2026, by nation or agency (numbers match the list in Appendix A)", loc="left", fontsize=BASE, x=0)
 ax.set_xlabel("Year")
 save(fig, "milestones_timeline.png")
 
@@ -127,6 +127,34 @@ a2.set_title("USA and China flew 88% of launches", loc="left", fontsize=BASE)
 panel_letter(a2, "b", dx=-0.2)
 save(fig, "launch_cadence.png")
 
+# ---------------------------------------------------------------- F2b reliability: share of launches that worked
+c["rate"] = 100 * c.successes / c.global_orbital_attempts
+fig, (a1, a2) = plt.subplots(1, 2, figsize=(14, 5.2), gridspec_kw=dict(width_ratios=[1.4, 1], wspace=0.22))
+full = c[~c.partial_year]; ytd = c[c.partial_year]
+a1.plot(full.year, full.rate, color=FOCAL, marker="o", ms=6, lw=1.6)
+a1.plot([full.year.iloc[-1], ytd.year.iloc[0]], [full.rate.iloc[-1], ytd.rate.iloc[0]], color=FOCAL, lw=1.2, ls=":")
+a1.scatter(ytd.year, ytd.rate, s=46, facecolor="white", edgecolor=FOCAL, lw=1.6, zorder=3)
+for y, below in ((2010, False), (2017, True), (2020, True), (2024, False), (2025, True)):
+    r = c.loc[c.year == y].iloc[0]
+    a1.text(y, r.rate + (-0.95 if below else 0.55), f"{r.rate:.1f}%", ha="center", fontsize=SMALL)
+r26 = ytd.iloc[0]; a1.text(2026, r26.rate + 0.55, f"{r26.rate:.1f}%\nto 7 Oct", ha="center", fontsize=SMALL)
+a1.set_xticks(range(2010, 2027, 2)); a1.set_ylim(88, 100); a1.set_ylabel("Launches fully successful (%)")
+a1.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(lambda v, _: f"{v:g}%"))
+lo, hi = full.rate.min(), full.rate.max()
+a1.set_title(f"Success rate stayed at {lo:.0f}–{hi:.0f}% while launches grew 4.5×", loc="left", fontsize=BASE)
+panel_letter(a1, "a", dx=-0.1)
+a2.bar(full.year, full.failures, color=ALARM, label="Failure")
+a2.bar(full.year, full.partial_failures, bottom=full.failures, color="#e8a39b", label="Partial failure")
+a2.bar(ytd.year, ytd.failures, color=ALARM, hatch="//", edgecolor="white")
+a2.bar(ytd.year, ytd.partial_failures, bottom=ytd.failures, color="#e8a39b", hatch="//", edgecolor="white")
+for _, r in c.iterrows():
+    n = int(r.failures + r.partial_failures); a2.text(r.year, n + 0.25, str(n), ha="center", fontsize=SMALL)
+a2.set_xticks(range(2010, 2027, 4)); a2.set_ylabel("Launches"); a2.set_ylim(0, 16)
+a2.legend(frameon=False, loc="upper left", fontsize=SMALL)
+a2.set_title("Failed launches per year (2026 to 7 Oct hatched)", loc="left", fontsize=BASE)
+panel_letter(a2, "b", dx=-0.16)
+save(fig, "reliability.png")
+
 # ---------------------------------------------------------------- F3 failures: causes + fix status
 f = pd.read_csv("data/failures.csv")
 fig, (a1, a2) = plt.subplots(1, 2, figsize=(14, 5.2), gridspec_kw=dict(wspace=0.75))
@@ -134,7 +162,7 @@ vc = f.root_cause_category.value_counts().sort_values()
 a1.barh(vc.index, vc.values, color=[CAT[k] for k in vc.index])
 for i, v in enumerate(vc.values): a1.text(v + 0.2, i, str(v), va="center", fontsize=SMALL)
 a1.set_xlabel("Number of events"); a1.set_xlim(0, vc.max() + 2.5)
-a1.set_title(f"Propulsion is the leading known cause (n = {len(f)})", loc="left", fontsize=BASE)
+a1.set_title(f"Engines and propellant systems cause the most failures (n = {len(f)})", loc="left", fontsize=BASE)
 panel_letter(a1, "a", dx=-0.3)
 order = ["Yes","By design (iterative test)","Partially","No","Too recent to assess","Not yet re-flown","N/A (vehicle retired)"]
 colr = {"Yes":FOCAL,"By design (iterative test)":"#6b8cc7","Partially":"#e0a64a","No":ALARM,"Too recent to assess":"#cfcfcf","Not yet re-flown":"#bdbdbd","N/A (vehicle retired)":"#e8e8e8"}
@@ -142,16 +170,16 @@ fh = f.did_fix_hold.value_counts().reindex(order).fillna(0).astype(int)[::-1]
 a2.barh(fh.index, fh.values, color=[colr[k] for k in fh.index], edgecolor="#999", lw=0.4)
 for i, v in enumerate(fh.values): a2.text(v + 0.2, i, str(v), va="center", fontsize=SMALL)
 a2.set_xlabel("Number of events"); a2.set_xlim(0, fh.max() + 2.5)
-a2.set_title(f"Did the fix hold? {fh['No']} failed on a later flight", loc="left", fontsize=BASE)
+a2.set_title(f"Did the fix hold? Yes for {fh['Yes']}, no for {fh['No']}", loc="left", fontsize=BASE)
 panel_letter(a2, "b", dx=-0.45)
 save(fig, "failures_overview.png")
 
 # ---------------------------------------------------------------- F4 learning loop
-ms = pd.read_csv("osalr/osalr_master.csv"); tx = pd.read_csv("osalr/failure_mode_taxonomy.csv")
+ms = f.copy(); tx = pd.read_csv("osalr/failure_mode_taxonomy.csv")
 ms["era"] = pd.cut(ms.year, [1900, 1999, 2019, 2025, 2030], labels=["1957–1999","2000–2019","2020–2025","2026"])
-ms["rec"] = np.where(ms.root_cause_recurred.str.startswith("Yes"), "Repeated a known mode",
-             np.where(ms.root_cause_recurred.str.startswith("No"), "New mode", "Unknown (no public cause)"))
-ct = pd.crosstab(ms.era, ms.rec).reindex(columns=["Repeated a known mode","New mode","Unknown (no public cause)"], fill_value=0)
+ms["rec"] = np.where(ms.root_cause_recurred.str.startswith("Yes"), "Same kind of failure seen on another flight",
+             np.where(ms.root_cause_recurred.str.startswith("No"), "One-off", "Unknown (no public cause)"))
+ct = pd.crosstab(ms.era, ms.rec).reindex(columns=["Same kind of failure seen on another flight","One-off","Unknown (no public cause)"], fill_value=0)
 fig, (a1, a2) = plt.subplots(2, 1, figsize=(11, 10.5), gridspec_kw=dict(height_ratios=[1, 1.6], hspace=0.35))
 left = np.zeros(len(ct)); cols = [ALARM, FOCAL, GREY]
 for col, cl in zip(ct.columns, cols):
@@ -161,8 +189,8 @@ for col, cl in zip(ct.columns, cols):
     left += ct[col].values
 a1.invert_yaxis(); a1.set_xlabel("Number of events"); a1.set_xlim(0, left.max() + 1)
 a1.legend(frameon=False, loc="upper left", bbox_to_anchor=(1.0, 1.0), fontsize=SMALL)
-known = ms[ms.rec != "Unknown (no public cause)"]; nrep = (known.rec == "Repeated a known mode").sum()
-a1.set_title(f"{nrep} of {len(known)} events with known recurrence status repeated an earlier mode", loc="left", fontsize=BASE)
+known = ms[ms.rec != "Unknown (no public cause)"]; nrep = (known.rec == "Same kind of failure seen on another flight").sum()
+a1.set_title(f"In {nrep} of the {len(known)} failures we can check, the same kind of failure hit another flight too", loc="left", fontsize=BASE)
 panel_letter(a1, "a", dx=-0.12)
 rows = []
 for _, t in tx[tx.code != tx.parent_class].iterrows():
@@ -175,7 +203,7 @@ a2.scatter(cov.n_orgs, yy, s=70, color=[GREY if c == "UNK-UNDISC" else FOCAL for
 for i, (o_, e_) in enumerate(zip(cov.n_orgs, cov.n_events)): a2.text(o_ + 0.25, i, f"{o_} orgs / {e_} events", va="center", fontsize=SMALL)
 a2.set_yticks(yy); a2.set_yticklabels([f"{md} ({cd})" for cd, md in zip(cov.code, cov["mode"])])
 a2.set_xlabel("Distinct organizations affected"); a2.set_xlim(0, cov.n_orgs.max() + 3.2)
-a2.set_title("Failure modes shared by the most organizations (top 12)", loc="left", fontsize=BASE)
+a2.set_title("The failure modes that hit the most organizations (top 12)", loc="left", fontsize=BASE)
 panel_letter(a2, "b", dx=-0.6)
 save(fig, "learning_loop.png")
 

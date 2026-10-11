@@ -1,6 +1,6 @@
 {
-  "database_name": "OPEN Spaceflight Anomaly & Lesson Repository (OSALR) \u2014 proposed schema",
-  "purpose": "A shared, cross-organization record of launch/spacecraft failures and their verified corrective actions, so any team can check a new design against every prior root cause before flight \u2014 ending the 71% re-teaching rate.",
+  "database_name": "Open Spaceflight Anomaly & Lesson Repository (OSALR): proposed schema",
+  "purpose": "A shared record of launch and spacecraft failures and whether their fixes held, so any team can check a new design against every known root cause before it flies.",
   "design_principles": [
     "Every record keys to a controlled root-cause taxonomy so 'has this mode happened before?' is a query, not a literature search.",
     "Two-tier access: a PUBLIC tier (mode, phase, lesson, corrective-action class) always shareable; a RESTRICTED tier (proprietary design detail) gated to members.",
@@ -8,7 +8,7 @@
     "Immutable, append-only, versioned \u2014 like a CVE database for spaceflight; each record gets a stable ID (OSALR-YYYY-NNNN).",
     "Machine-readable controlled vocabularies for phase, root_cause_category, mission_type so records federate across agencies."
   ],
-  "governance_model": "Neutral steward (e.g. an IAASS/COSPAR-style body or an ISO working group) curates the taxonomy and mediates the public/restricted split; members commit to filing within N months of a mishap-board closure, mirroring aviation's ICAO ADREP/ECCAIRS and the CVE/CWE model in cybersecurity.",
+  "governance_model": "A neutral steward (for example an IAASS- or COSPAR-style body, or an ISO working group) maintains the taxonomy and decides what goes in the public or restricted tier. Members agree to file a record within a fixed window after their mishap board closes, the way aviation does with ICAO ADREP/ECCAIRS and software security does with CVE/CWE.",
   "fields": [
     {
       "field": "record_id",

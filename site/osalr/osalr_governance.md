@@ -1,47 +1,48 @@
-# OSALR governance one-pager
-### OPEN Spaceflight Anomaly & Lesson Repository — a shared, cross-organization failure database
+# How a shared failure database could work
 
-**The problem it solves.** Of 45 catalogued failures 1957–2026, 40 have a known recurrence status, and **30 of those 40 (75%) repeated a failure mode already seen before.** Propulsion faults hit 14 different organizations; the "uncommanded engine shutdown" mode alone recurred at 6 organizations across 3 blocs and 56 years. A newer problem: 7 of the 8 failures logged in 2026 have no public cause statement at all (`UNK-UNDISC`), so they cannot teach anyone outside the operator. The industry keeps re-teaching itself the same lessons because failure knowledge is trapped inside each organization's own history. OSALR makes *"has this mode happened before, to anyone?"* a one-line query.
+OSALR (Open Spaceflight Anomaly & Lesson Repository) is a working database today: 45 failures from 1957 to October 2026, coded and checked for whether the fix held. This page sketches how it could grow into something the industry shares and maintains together.
 
----
+## Why it's needed
 
-## Precedents this model copies deliberately
+Of the 45 failures in the database, 40 can be checked for repeats, and in **30 of those 40 (75%)** the same kind of failure also hit another flight. Propulsion failures alone have hit 12 different organizations. Uncommanded engine shutdown has hit 6 organizations in 3 countries over 56 years, from the Soviet N1 in 1969 to Japan's H3 in 2025.
 
-- **Aviation — ICAO ADREP / EU ECCAIRS.** Every ICAO member state files accident and incident reports into a common, taxonomy-coded repository (ADREP). Europe's ECCAIRS gives it a shared data model so a Boeing fault filed in France is queryable in Japan. Aviation's safety record is what it is *because* the reporting is mandatory, coded, and shared. OSALR adopts the coded-federation model directly.
-- **Cybersecurity — CVE / CWE.** CVE assigns every vulnerability a stable public ID (CVE-YYYY-NNNNN); CWE is the controlled *weakness taxonomy* underneath it. A vendor can disclose "we were hit by CWE-120" without publishing exploit code. OSALR's `record_id` (OSALR-YYYY-NNNN) mirrors CVE; its `failure_mode_code` taxonomy mirrors CWE.
+The newest failures are the hardest to learn from. 7 of the 8 failures logged in 2026 have no public cause (`UNK-UNDISC`), so nobody outside the operator can learn from them. When each organization keeps its failure history to itself, others end up relearning the same lessons. OSALR turns "has this happened before, to anyone?" into a one-line query.
 
----
+## Models it borrows from
 
-## Governance structure
+- **Aviation: ICAO ADREP and the EU's ECCAIRS.** ICAO member states file accident and incident reports into a common repository coded with one shared taxonomy. ECCAIRS gives it a common data model, so a fault reported in France can be searched in Japan. Aviation is as safe as it is largely because reporting is required, coded and shared. OSALR copies this model directly.
+- **Software security: CVE and CWE.** Every known vulnerability gets a stable public ID (CVE-YYYY-NNNNN), and CWE is the taxonomy of weakness types underneath. A vendor can say "we were hit by CWE-120" without publishing exploit code. OSALR's `record_id` (OSALR-YYYY-NNNN) works like a CVE ID, and its `failure_mode_code` list works like CWE.
 
-**Neutral steward.** A vendor-neutral body curates the taxonomy and mediates the public/restricted split — modeled on an **IAASS / COSPAR-style** international association or an **ISO working group**. The steward owns the taxonomy, assigns record IDs, and runs the de-identification review. It does *not* adjudicate blame — it curates lessons.
+## Who runs it
 
-**Membership & filing commitment.** Members (agencies, primes, commercial launchers, insurers) commit to filing a record within **N months of a mishap-board closure** — the same "duty to report" that makes aviation's system work. Filing the *lesson* is the price of querying everyone else's.
+**A neutral steward.** A vendor-neutral body maintains the taxonomy and decides what goes in the public and restricted tiers. It could be an IAASS- or COSPAR-style international association, or an ISO working group. The steward assigns record IDs and reviews submissions for proprietary detail. Its job is to collect lessons, not to assign blame.
 
-## Two-tier access model
+**Members agree to file.** Agencies, launch companies, primes and insurers commit to filing a record within a fixed window after their mishap board closes, the same duty to report that makes aviation's system work. Filing your lessons is what earns you access to everyone else's.
 
-| Tier | Contains | Who sees it |
+## Two access tiers
+
+| Tier | What it holds | Who can see it |
 |---|---|---|
-| **Public** | Failure-mode code, phase, factual cause summary, lesson learned, corrective-action *class*, fix-verification verdict, reference citation | Anyone — always shareable |
-| **Restricted** | Proprietary design/engineering detail, exact part specs, internal test data | Members only, gated |
+| **Public** | Failure-mode code, flight phase, factual cause summary, lesson learned, type of fix, whether the fix held, source | Anyone |
+| **Restricted** | Proprietary design and engineering detail, exact part specs, internal test data | Members only |
 
-The public tier is enough to answer "has this mode happened, and did the fix hold?" — the restricted tier protects competitive and ITAR/export-controlled detail. **A submission is never blocked on proprietary concerns:** the public lesson is separable from the proprietary detail, exactly as a CVE is filable without the exploit.
+The public tier is enough to answer "has this happened before, and did the fix hold?" The restricted tier protects commercial and export-controlled (ITAR) detail. **Proprietary concerns never block a submission:** the public lesson can always be separated from the private detail, the same way a CVE can be filed without the exploit.
 
-## Submission & de-identification workflow
+## How a record gets in
 
-1. **Submit** — organization fills the intake template (`osalr_intake_template.csv`) after its mishap board closes.
-2. **De-identify** — steward review strips proprietary/ITAR-controlled detail into the restricted tier; the public record keeps mode, phase, lesson, and fix-verification.
-3. **Code** — steward assigns `record_id` and validates the `failure_mode_code`(s) against the controlled taxonomy.
-4. **Publish** — public tier goes live; the record is **append-only** — corrections and later fix-verification updates are added as new rows, never overwrites (a CVE is never silently edited).
-5. **Verify** — the fix-verification field is revisited as later flights accumulate evidence; "Too recent to assess" resolves to Yes / Partially / No over time.
+1. **Submit.** After its mishap board closes, the organization fills in `osalr_intake_template.csv`.
+2. **Review.** The steward moves proprietary or ITAR-controlled detail into the restricted tier. The public record keeps the failure mode, phase, lesson and fix outcome.
+3. **Code.** The steward assigns a `record_id` and checks the `failure_mode_code` values against the taxonomy.
+4. **Publish.** The public record goes live. Records are append-only: corrections and later fix updates are added as new rows and never overwrite old ones, just as a CVE is never silently edited.
+5. **Follow up.** The fix outcome is revisited as later flights add evidence. "Too recent to assess" and "Not yet re-flown" eventually become Yes, Partially or No.
 
-## Adoption path
+## How it could grow
 
-1. **Seed** (done) — 45 events (1957 – Oct 2026), coded and fix-verified, ship today as `osalr.db`. A working reference implementation, not a proposal deck.
-2. **Convene** — a founding steward group (one national agency + two commercial launchers + one insurer is enough to start) ratifies the taxonomy and the filing-window commitment.
-3. **Federate** — members map their internal anomaly systems to the OSALR schema; the shared model means no one rebuilds their tooling, they just export to a common format.
-4. **Mandate** — as with aviation, the long-run goal is filing tied to launch licensing, so the public-safety lesson is a condition of flight, not a favor.
+1. **Seed (done).** 45 events from 1957 to October 2026, coded and checked, ship today as `osalr.db`. It's a working reference implementation you can query now.
+2. **Convene.** A small founding group ratifies the taxonomy and the filing window. One national agency, two launch companies and one insurer would be enough to start.
+3. **Federate.** Members map their internal anomaly systems to the OSALR schema. Nobody has to rebuild their tooling; they export to a common format.
+4. **Require.** As in aviation, the long-term goal is to tie filing to launch licensing, so sharing the public lesson becomes a condition of flight.
 
 ---
 
-*Reference implementation: `osalr.db` (SQLite, 45 events / 24 orgs / 36 codes), `failure_mode_taxonomy.csv`, `failure_db_schema.json`, `osalr_intake_template.csv`. All queries in `query_demos.md` run against the shipped database.*
+*Reference implementation: `osalr.db` (SQLite, 45 events from 24 organizations, 36 failure-mode codes), `failure_mode_taxonomy.csv`, `failure_db_schema.json` and `osalr_intake_template.csv`. Every query in `query_demos.md` runs against the shipped database.*

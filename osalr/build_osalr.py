@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """build_osalr.py — rebuilds osalr.db from two CSVs. Run: python osalr/build_osalr.py
-Inputs : osalr_master.csv (one row per event, all fields + record_id, bloc, failure_mode_codes)
+Inputs : ../data/failures.csv (one row per event; the only place failures are edited)
          failure_mode_taxonomy.csv (controlled codes: classes + leaf modes)
          osalr_schema.sql
 Output : osalr.db with organizations, failure_modes, events, event_modes, references_tbl, fix_verifications
@@ -9,7 +9,7 @@ import sqlite3, os, pandas as pd
 os.chdir(os.path.dirname(os.path.abspath(__file__)))  # works from any directory
 
 DB = "osalr.db"
-ev  = pd.read_csv("osalr_master.csv")
+ev  = pd.read_csv("../data/failures.csv")
 tax = pd.read_csv("failure_mode_taxonomy.csv")
 if os.path.exists(DB): os.remove(DB)
 con = sqlite3.connect(DB); con.execute("PRAGMA foreign_keys=ON"); cur = con.cursor()

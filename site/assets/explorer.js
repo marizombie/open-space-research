@@ -7,7 +7,6 @@
   const controls = ["dataset", "search", "filter-field", "filter-value", "page-size", "all-columns"];
   const preferred = {
     failures: ["date", "name", "org_country", "root_cause_category", "did_fix_hold"],
-    osalr_master: ["record_id", "date", "name", "org_country", "failure_mode_codes"],
     organizations: ["organization", "country_bloc", "flagship_vehicle", "orbital_launches_2025", "orbital_launches_2026_ytd"],
     spaceflight_milestones: ["num", "date", "milestone", "actor", "category"],
     tech_gaps: ["capability", "current_trl", "readiness_label", "evidence_2026"],
@@ -15,7 +14,8 @@
     launch_costs: ["vehicle", "year", "leo_kg", "cost_per_kg_usd", "reuse"],
     cost_model: ["vehicle", "contract_type", "destination_orbit", "effective_usd_per_kg", "price_basis"]
   };
-  const label = field => field.replaceAll("_", " ").replace(/\b\w/g, letter => letter.toUpperCase());
+  // Readable column names come from build_site.py; the CSV column name is the fallback.
+  const label = field => (current && current.labels && current.labels[field]) || field.replaceAll("_", " ").replace(/\b\w/g, letter => letter.toUpperCase());
   const collator = new Intl.Collator("en", { numeric: true, sensitivity: "base" });
   let current;
   let page = 0;
@@ -44,8 +44,10 @@
     element("search").value = "";
     element("filter-field").replaceChildren(option("", "All fields"), ...current.columns.map(field => option(field, label(field))));
     element("dataset-description").textContent = current.description;
-    element("dataset-download").href = current.path;
-    element("dataset-download").setAttribute("aria-label", `Download ${current.label} CSV`);
+    if (element("dataset-page")) {
+      element("dataset-page").href = current.url;
+      element("dataset-page").setAttribute("aria-label", `Open ${current.label} dataset page`);
+    }
     selectFilter();
   }
 
@@ -105,7 +107,7 @@
     }
     const detailsHeader = node("th", "Details");
     detailsHeader.scope = "col";
-    header.append(detailsHeader);
+    header.prepend(detailsHeader);
     element("data-table").querySelector("thead").replaceChildren(header);
     const rows = visible.map(row => {
       const tr = node("tr");
@@ -115,7 +117,7 @@
       button.type = "button";
       button.addEventListener("click", () => showRecord(row));
       td.append(button);
-      tr.append(td);
+      tr.prepend(td);
       return tr;
     });
     element("data-table").querySelector("tbody").replaceChildren(...rows);
@@ -124,6 +126,7 @@
     element("page-status").textContent = `Page ${page + 1} of ${pages}`;
     element("previous-page").disabled = page === 0;
     element("next-page").disabled = page >= pages - 1;
+    element("reset-sorting").disabled = !sortField;
   }
 
   element("dataset").addEventListener("change", selectDataset);
@@ -133,8 +136,14 @@
   }
   element("reset").addEventListener("click", () => {
     element("page-size").value = "25";
-    element("all-columns").checked = false;
+    element("all-columns").checked = datasets.length === 1;
     selectDataset();
+  });
+  element("reset-sorting").addEventListener("click", () => {
+    sortField = "";
+    descending = false;
+    page = 0;
+    render();
   });
   element("previous-page").addEventListener("click", () => { page--; render(); });
   element("next-page").addEventListener("click", () => { page++; render(); });

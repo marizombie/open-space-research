@@ -8,7 +8,8 @@ data/launch_failures_2025_2026.csv, then copy accepted changes in by hand and lo
   python scripts/refresh_launch_logs.py --first 2015 --current 2026
 
 Counting rules (match the published data):
-  * annual totals = the 'total' field of the "<year> in spaceflight" summary (includes Starship flight tests)
+  * annual totals = the 'total', 'success', 'failed' and 'partial' fields of the "<year> in spaceflight" summary
+    (includes Starship flight tests)
   * current year  = TLS-RL rows with a filled outcome in the orbital section, plus Starship rows in the suborbital section
   * failure ledger = orbital-section rows where any payload outcome is "Launch failure"
 Wikipedia text is CC BY-SA 4.0; derived files inherit that licence.
@@ -101,10 +102,15 @@ def main():
     if a.first >= a.current or a.ledger_from > a.current:
         ap.error("--first must precede --current, and --ledger-from must not exceed --current")
 
+    def infobox(w, name):
+        m = re.search(r"\|\s*" + name + r"\s*=\s*(\d*)", w or "", re.I)
+        return (int(m.group(1)) if m.group(1) else 0) if m else None  # a present but blank field means zero
+
     totals = []
     for y in range(a.first, a.current):
-        w = wikitext(f"{y} in spaceflight", a.offline); m = re.search(r"\|\s*total\s*=\s*(\d+)", w or "", re.I)
-        totals.append(dict(year=y, global_orbital_attempts=int(m.group(1)) if m else None))
+        w = wikitext(f"{y} in spaceflight", a.offline)
+        totals.append(dict(year=y, global_orbital_attempts=infobox(w, "total"), successes=infobox(w, "success"),
+                           failures=infobox(w, "failed"), partial_failures=infobox(w, "partial")))
 
     led, spx, ytd = [], {}, Counter()
     available_years = set()
@@ -131,7 +137,7 @@ def main():
         return
     os.makedirs(OUT, exist_ok=True)
     current_total = sum(ytd.values()) if a.current in available_years else None
-    t = pd.DataFrame(totals); t.loc[len(t)] = [a.current, current_total]
+    t = pd.DataFrame(totals); t.loc[len(t)] = [a.current, current_total, None, None, None]
     t["spacex_all_vehicles"] = t.year.map(spx); t["partial_year"] = t.year == a.current
     t.to_csv(os.path.join(OUT, "launch_cadence_refresh.csv"), index=False)
     pd.DataFrame(sorted(ytd.items(), key=lambda kv: -kv[1]), columns=["country", f"launches_{a.current}_ytd"]).to_csv(os.path.join(OUT, "launch_share_refresh.csv"), index=False)

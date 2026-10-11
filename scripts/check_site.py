@@ -52,19 +52,34 @@ def read_csv(filename):
 
 
 def validate_site(root=ROOT):
+    root = Path(root).resolve()
     site = root / "site"
-    page = Page()
-    page.feed((site / "index.html").read_text(encoding="utf-8"))
-    errors = [f"Duplicate element ID: {identifier}" for identifier in page.duplicates]
-    for link in page.links:
-        url = urlsplit(link)
-        if url.scheme or url.netloc:
-            continue
-        target = site / unquote(url.path) if url.path else site / "index.html"
-        if not target.is_file():
-            errors.append(f"Missing local resource: {link}")
-        elif url.fragment and target == site / "index.html" and unquote(url.fragment) not in page.ids:
-            errors.append(f"Missing anchor: {link}")
+    pages = {}
+    errors = []
+    for filename in site.rglob("*.html"):
+        parsed = Page()
+        parsed.feed(filename.read_text(encoding="utf-8"))
+        pages[filename.resolve()] = parsed
+        errors.extend(f"Duplicate element ID in {filename.relative_to(site)}: {identifier}" for identifier in parsed.duplicates)
+    page = pages[(site / "index.html").resolve()]
+    for filename, parsed in pages.items():
+        for link in parsed.links:
+            url = urlsplit(link)
+            if url.scheme or url.netloc:
+                continue
+            target = (site / unquote(url.path.lstrip("/"))) if url.path.startswith("/") else (filename.parent / unquote(url.path)) if url.path else filename
+            if target.is_dir():
+                target = target / "index.html"
+            target = target.resolve()
+            if not target.is_file():
+                errors.append(f"Missing local resource in {filename.relative_to(site)}: {link}")
+            elif url.fragment and target in pages and unquote(url.fragment) not in pages[target].ids:
+                errors.append(f"Missing anchor in {filename.relative_to(site)}: {link}")
+            if target.suffix in (".csv", ".db", ".sqlite", ".sqlite3"):
+                errors.append(f"Raw data download link remains: {link}")
+    for artifact in site.rglob("*"):
+        if artifact.is_file() and artifact.suffix in (".csv", ".db", ".sqlite", ".sqlite3"):
+            errors.append(f"Raw data artifact is publicly exposed: {artifact.relative_to(site)}")
 
     datasets = json.loads("".join(page.payload))
     sources = {source.relative_to(root).as_posix(): source for folder in ("data", "osalr") for source in (root / folder).glob("*.csv")}
@@ -78,14 +93,18 @@ def validate_site(root=ROOT):
         dataset = published.get(relative)
         if dataset and (dataset["columns"] != columns or dataset["rows"] != rows):
             errors.append(f"Explorer differs from source CSV: {relative}")
-        copy = site / relative
-        if not copy.is_file() or copy.read_bytes() != source.read_bytes():
-            errors.append(f"Download differs from source CSV: {relative}")
-        if relative not in page.links:
-            errors.append(f"CSV is absent from downloads: {relative}")
+        if dataset:
+            destination = site / dataset["url"] / "index.html"
+            if dataset["url"] not in page.links:
+                errors.append(f"Dataset page is absent from the catalog: {relative}")
+            detail = pages.get(destination.resolve())
+            if detail is None:
+                errors.append(f"Missing dataset page: {dataset['url']}")
+            elif json.loads("".join(detail.payload)) != [dataset]:
+                errors.append(f"Dataset page differs from source: {relative}")
     for folder in ("images", "docs", "osalr"):
         for source in (root / folder).iterdir():
-            if not source.is_file() or source.suffix == ".py":
+            if not source.is_file() or source.suffix in (".py", ".csv", ".db", ".sqlite", ".sqlite3"):
                 continue
             relative = source.relative_to(root)
             target = site / relative
@@ -96,37 +115,30 @@ def validate_site(root=ROOT):
         if not target.is_file() or target.read_bytes() != source.read_bytes():
             errors.append(f"Missing or outdated site asset: {source.name}")
 
+    # data/failures.csv is the only failures table; osalr.db is built from it.
     _, failures = read_csv(root / "data" / "failures.csv")
-    _, master = read_csv(root / "osalr" / "osalr_master.csv")
-    failure_by_name = {row["name"]: row for row in failures}
-    if len(failure_by_name) != len(failures) or len({row["record_id"] for row in master}) != len(master):
+    if len({row["name"] for row in failures}) != len(failures) or len({row["record_id"] for row in failures}) != len(failures):
         errors.append("Duplicate failure name or OSALR record ID")
-    if len(master) != len(failures):
-        errors.append("OSALR master and curated failures have different record counts")
-    for row in master:
-        original = failure_by_name.get(row["name"])
-        if original is None or any(row.get(key) != value for key, value in original.items()):
-            errors.append(f"OSALR master differs from curated failure: {row['name']}")
     _, cadence = read_csv(root / "data" / "launch_cadence.csv")
     for row in cadence:
         if int(row["global_orbital_attempts"]) != int(row["spacex_all_vehicles"]) + int(row["other"]):
             errors.append(f"Launch counts do not add up for {row['year']}")
 
-    with sqlite3.connect(f"file:{site / 'osalr' / 'osalr.db'}?mode=ro", uri=True) as database:
+    with sqlite3.connect(f"file:{root / 'osalr' / 'osalr.db'}?mode=ro", uri=True) as database:
         if database.execute("PRAGMA integrity_check").fetchall() != [("ok",)]:
             errors.append("Database integrity check failed")
         if database.execute("PRAGMA foreign_key_check").fetchall():
             errors.append("Database contains invalid foreign keys")
         for table in ("events", "references_tbl", "fix_verifications"):
             ids = {row[0] for row in database.execute(f"SELECT record_id FROM {table}")}
-            if ids != {row["record_id"] for row in master}:
-                errors.append(f"Database {table} does not cover all master records")
-            if database.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0] != len(master):
+            if ids != {row["record_id"] for row in failures}:
+                errors.append(f"Database {table} does not cover every row of data/failures.csv")
+            if database.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0] != len(failures):
                 errors.append(f"Duplicate or missing database rows in {table}")
         modes = set(database.execute("SELECT record_id, code FROM event_modes"))
-        expected_modes = {(row["record_id"], code.strip()) for row in master for code in row["failure_mode_codes"].split(";") if code.strip()}
+        expected_modes = {(row["record_id"], code.strip()) for row in failures for code in row["failure_mode_codes"].split(";") if code.strip()}
         if modes != expected_modes:
-            errors.append("Database failure-mode assignments differ from master")
+            errors.append("Database failure-mode assignments differ from data/failures.csv")
         database.row_factory = sqlite3.Row
         records = {row["record_id"]: dict(row) for row in database.execute("""
             SELECT e.*, o.org_name, o.bloc, r.primary_reference, r.reference_type,
@@ -137,17 +149,17 @@ def validate_site(root=ROOT):
             JOIN fix_verifications f USING(record_id)
         """)}
         column_map = {"name": "event_name", "date": "event_date", "org_country": "org_name"}
-        for row in master:
+        for row in failures:
             actual = records.get(row["record_id"], {})
             for field, value in row.items():
                 if field in ("root_cause_category", "failure_mode_codes"):
                     continue  # Stored as controlled event_modes, checked above.
                 stored = actual.get(column_map.get(field, field))
                 if ("" if stored is None else str(stored)) != value:
-                    errors.append(f"Database differs from master: {row['record_id']} / {field}")
+                    errors.append(f"Database differs from data/failures.csv: {row['record_id']} / {field}")
     if errors:
         raise ValueError("Site validation failed:\n" + "\n".join(errors))
-    return f"Validated {len(datasets)} datasets / {sum(len(d['rows']) for d in datasets)} rows, {len(page.links)} links, all published assets and {len(master)} database events."
+    return f"Validated {len(datasets)} datasets / {sum(len(d['rows']) for d in datasets)} rows, {sum(len(parsed.links) for parsed in pages.values())} links across {len(pages)} pages, all published assets and {len(failures)} database events."
 
 
 if __name__ == "__main__":

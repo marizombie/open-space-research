@@ -15,7 +15,7 @@ num,milestone,date,year,actor,vehicle,category,significance
 14,Luna 2 — first craft to reach the Moon,1959-09-13,1959,USSR,Luna 8K72,Planetary/deep-space,First human-made object to impact another celestial body
 15,Luna 3 — first images of the lunar far side,1959-10-07,1959,USSR,Luna 8K72,Planetary/deep-space,First photos of the Moon's hidden hemisphere
 16,T-7M — first Chinese sounding rocket flight,1960-02-19,1960,China,T-7M,Foundational,"Launched from Nanhui, Shanghai after a failed first attempt in January 1960"
-17,"Vostok 1 — Gagarin, first human in space",1961-04-12,1961,USSR,Vostok-K (R-7),Human first,"First human in space: ONE orbit of EARTH (~327 km, 108 min) — not a lunar flight"
+17,"Vostok 1 — Gagarin, first human in space",1961-04-12,1961,USSR,Vostok-K (R-7),Human first,"First human in space: one orbit of Earth (~327 km, 108 min)"
 18,"Freedom 7 — Alan Shepard, first American in space",1961-05-05,1961,USA,Mercury-Redstone 3,Human first,"First American in space, a 15-minute suborbital flight three weeks after Gagarin."
 19,"Friendship 7 — John Glenn, first American to orbit Earth",1962-02-20,1962,USA,Mercury-Atlas 6,Human first,First American to complete an orbit of Earth (three orbits).
 20,Mariner 2 — first successful planetary flyby,1962-12-14,1962,USA,Atlas-Agena,Planetary/deep-space,First spacecraft to successfully fly by another planet (Venus).
@@ -58,5 +58,5 @@ num,milestone,date,year,actor,vehicle,category,significance
 57,Chandrayaan-3 — first soft landing near the lunar south pole,2023-08-23,2023,India (ISRO),LVM3,Planetary/deep-space,First soft landing in the lunar south-polar region.
 58,Artemis II — first crewed flight beyond LEO since 1972; farthest humans from Earth,2026-04-01,2026,USA,SLS / Orion,Human first,"Crewed lunar flyby, 1-11 Apr 2026 (Wiseman, Glover, Koch, Hansen); passed Apollo 13's distance record"
 59,Long March 10B — first Chinese recovery of an orbital-class booster,2026-07-10,2026,China,Long March 10B,Foundational,"China became the second nation to recover an orbital-class booster, and the first to do so with a net-capture system at sea."
-60,Isar Spectrum — first orbital launch from Western European soil,2026-09-05,2026,Germany,Spectrum,Foundational,"Launched from Andøya, Norway, after the maiden flight failed in Mar 2025"
+60,Isar Spectrum — first rocket to reach orbit from Western Europe,2026-09-05,2026,Germany,Spectrum,Foundational,"Launched from Andøya, Norway, after the maiden flight failed in Mar 2025"
 61,Starship Flight 14 — first orbital Starship flight (26 Starlink V3),2026-09-28,2026,USA,Starship,Foundational,First orbital and first commercial flight of a fully reusable-design super-heavy launcher
