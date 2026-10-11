@@ -1,0 +1,130 @@
+{
+  "database_name": "OPEN Spaceflight Anomaly & Lesson Repository (OSALR) \u2014 proposed schema",
+  "purpose": "A shared, cross-organization record of launch/spacecraft failures and their verified corrective actions, so any team can check a new design against every prior root cause before flight \u2014 ending the 71% re-teaching rate.",
+  "design_principles": [
+    "Every record keys to a controlled root-cause taxonomy so 'has this mode happened before?' is a query, not a literature search.",
+    "Two-tier access: a PUBLIC tier (mode, phase, lesson, corrective-action class) always shareable; a RESTRICTED tier (proprietary design detail) gated to members.",
+    "Fix verification is a first-class field: every corrective action must eventually be marked held / partially / did-not-hold with evidence.",
+    "Immutable, append-only, versioned \u2014 like a CVE database for spaceflight; each record gets a stable ID (OSALR-YYYY-NNNN).",
+    "Machine-readable controlled vocabularies for phase, root_cause_category, mission_type so records federate across agencies."
+  ],
+  "governance_model": "Neutral steward (e.g. an IAASS/COSPAR-style body or an ISO working group) curates the taxonomy and mediates the public/restricted split; members commit to filing within N months of a mishap-board closure, mirroring aviation's ICAO ADREP/ECCAIRS and the CVE/CWE model in cybersecurity.",
+  "fields": [
+    {
+      "field": "record_id",
+      "tier": "public",
+      "type": "string",
+      "desc": "Stable ID, e.g. OSALR-2016-0007"
+    },
+    {
+      "field": "event_name",
+      "tier": "public",
+      "type": "string",
+      "desc": "Common name (e.g. 'Falcon 9 AMOS-6')"
+    },
+    {
+      "field": "date",
+      "tier": "public",
+      "type": "date",
+      "desc": "Event date (ISO 8601)"
+    },
+    {
+      "field": "actor",
+      "tier": "public",
+      "type": "string",
+      "desc": "Operating org / country"
+    },
+    {
+      "field": "vehicle_or_spacecraft",
+      "tier": "public",
+      "type": "string",
+      "desc": "Vehicle or spacecraft"
+    },
+    {
+      "field": "mission_phase",
+      "tier": "public",
+      "type": "enum",
+      "desc": "Ground / Ascent / Stage-sep / Orbit / EDL / Reentry / Operations"
+    },
+    {
+      "field": "root_cause_category",
+      "tier": "public",
+      "type": "enum",
+      "desc": "Controlled taxonomy (Propulsion, Avionics/Software, Structural, Human/Process, Staging/Separation, Electrical, GNC, ...)"
+    },
+    {
+      "field": "failure_mode_code",
+      "tier": "public",
+      "type": "enum",
+      "desc": "Granular sub-mode, e.g. PROP-COPV-IGNITION, SW-UNIT-MISMATCH, STRUCT-STRUT-FAILURE"
+    },
+    {
+      "field": "cause_summary",
+      "tier": "public",
+      "type": "text",
+      "desc": "Plain-language root cause"
+    },
+    {
+      "field": "lesson_learned",
+      "tier": "public",
+      "type": "text",
+      "desc": "The generalizable lesson"
+    },
+    {
+      "field": "corrective_action_class",
+      "tier": "public",
+      "type": "enum",
+      "desc": "Design change / Process change / Requal / Supplier change / Redundancy"
+    },
+    {
+      "field": "corrective_action_detail",
+      "tier": "restricted",
+      "type": "text",
+      "desc": "Proprietary specifics (members only)"
+    },
+    {
+      "field": "did_fix_hold",
+      "tier": "public",
+      "type": "enum",
+      "desc": "Yes / Partially / No / Too recent / N/A"
+    },
+    {
+      "field": "fix_hold_evidence",
+      "tier": "public",
+      "type": "text",
+      "desc": "What subsequent flights showed"
+    },
+    {
+      "field": "primary_reference",
+      "tier": "public",
+      "type": "string",
+      "desc": "Accident-board report / inquiry citation"
+    },
+    {
+      "field": "reference_type",
+      "tier": "public",
+      "type": "enum",
+      "desc": "Public board report / Agency inquiry / Company-FAA closure / State commission / Internal"
+    },
+    {
+      "field": "crewed",
+      "tier": "public",
+      "type": "bool",
+      "desc": "Was crew aboard/at risk"
+    },
+    {
+      "field": "fatalities",
+      "tier": "public",
+      "type": "int",
+      "desc": "Loss of life count"
+    },
+    {
+      "field": "related_records",
+      "tier": "public",
+      "type": "list",
+      "desc": "Prior OSALR IDs sharing the failure_mode_code (the 'this happened before' link)"
+    }
+  ],
+  "taxonomy_note": "failure_mode_code values: see failure_mode_taxonomy.csv (8 classes incl. UNK 'undetermined/undisclosed', 28 leaf modes)",
+  "record_id_rule": "OSALR-YYYY-NNNN; IDs are never reused (OSALR-2023-0002 retired: entry was not a failure)"
+}

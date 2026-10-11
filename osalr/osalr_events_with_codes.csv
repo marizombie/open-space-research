@@ -1,0 +1,46 @@
+record_id,name,year,org_country,bloc,failure_mode_codes,root_cause_category,did_fix_hold,root_cause_recurred
+OSALR-1957-0001,Vanguard TV3,1957,USA (Navy),USA,PROP-FEED,Propulsion,N/A (vehicle retired),Yes
+OSALR-1960-0001,Nedelin catastrophe,1960,USSR,USSR/Russia,HUM-SAFETY;PROP-IGN,Human/Process,Yes,Yes
+OSALR-1967-0001,Apollo 1 fire,1967,USA (NASA),USA,ELEC-FIRE,Electrical,Yes,No
+OSALR-1967-0002,Soyuz 1,1967,USSR,USSR/Russia,STR-CHUTE,Structural,Partially,Yes
+OSALR-1969-0001,N1 (all 4 flights),1969,USSR,USSR/Russia,PROP-CI;PROP-SHUT,Propulsion,N/A (vehicle retired),Yes
+OSALR-1986-0001,Challenger STS-51-L,1986,USA (NASA),USA,STR-JOINT,Structural,Partially,Yes
+OSALR-1996-0001,Ariane 5 Flight 501,1996,ESA,Europe,AVS-SWOVF;AVS-SWREQ,Avionics/Software,Yes,No
+OSALR-1999-0003,Titan IV / Milstar,1999,USA,USA,AVS-CFG,Avionics/Software,Yes,Yes
+OSALR-1999-0001,Mars Climate Orbiter,1999,USA (NASA),USA,HUM-UNIT,Human/Process,Yes,No
+OSALR-1999-0002,Mars Polar Lander,1999,USA (NASA),USA,AVS-SENS,Avionics/Software,Yes,Yes
+OSALR-2003-0001,Columbia STS-107,2003,USA (NASA),USA,STR-TPS,Structural,Yes,Yes
+OSALR-2007-0001,Sea Launch Zenit-3SL,2007,Sea Launch,USA,PROP-FOD,Propulsion,Yes,No
+OSALR-2008-0001,Falcon 1 Flight 3,2008,SpaceX,USA,SEP-RECON,Staging/Separation,Yes,No
+OSALR-2011-0001,Amos-5 / Zenit (SES),2011,Russia,USSR/Russia,PROP-FEED,Propulsion,Partially,No
+OSALR-2013-0001,Proton-M / GLONASS,2013,Russia,USSR/Russia,HUM-ASSY,Human/Process,Partially,Yes
+OSALR-2014-0001,Antares Orb-3,2014,Orbital Sciences,USA,PROP-TP,Propulsion,Yes,No
+OSALR-2015-0001,Falcon 9 CRS-7,2015,SpaceX,USA,STR-STRUT,Structural,Yes,Yes
+OSALR-2016-0001,Falcon 9 AMOS-6,2016,SpaceX,USA,STR-COPV;PROP-FEED,Propulsion,Yes,Yes
+OSALR-2016-0002,Schiaparelli EDM,2016,ESA/Roscosmos,USSR/Russia,GNC-EST;AVS-SENS,Avionics/Software,Too recent to assess,Yes
+OSALR-2017-0001,Long March 5 Y2,2017,China (CNSA),China,PROP-TP,Propulsion,Yes,Yes
+OSALR-2018-0001,Soyuz MS-10 abort,2018,Roscosmos,USSR/Russia,HUM-ASSY;SEP-ANOM,Human/Process,Yes,Yes
+OSALR-2019-0001,Vega VV15,2019,Arianespace,Europe,STR-DOME,Structural,No,No
+OSALR-2021-0001,Astra Rocket 3.3 LV0006,2021,Astra,USA,PROP-SHUT;PROP-IGN,Propulsion,No,Yes
+OSALR-2021-0002,Firefly Alpha Flight 1,2021,Firefly,USA,PROP-SHUT,Propulsion,No,Yes
+OSALR-2022-0001,Astra TROPICS-1,2022,Astra,USA,PROP-SHUT,Propulsion,N/A (vehicle retired),Yes
+OSALR-2023-0001,ABL RS1 Flight 1,2023,ABL Space,USA,ELEC-FIRE;PROP-SHUT,Electrical,N/A (vehicle retired),Yes
+OSALR-2023-0003,H3 TF1,2023,JAXA,Japan,ELEC-PWR;PROP-IGN,Avionics/Software,Yes,Yes
+OSALR-2023-0004,Starship IFT-1,2023,SpaceX,USA,PROP-SHUT;GNC-ATT,Propulsion,By design (iterative test),No
+OSALR-2024-0002,Peregrine Mission One,2024,Astrobotic,USA,PROP-LEAK,Propulsion,Not yet re-flown,No
+OSALR-2024-0003,Starship IFT-3,2024,SpaceX,USA,GNC-ATT,GNC,By design (iterative test),Yes
+OSALR-2024-0001,Firefly Alpha Flight 5 (Lockheed),2024,Firefly,USA,SEP-ANOM,Staging/Separation,No,Yes
+OSALR-2025-0005,Starship Flight 7,2025,SpaceX,USA,PROP-CI;PROP-LEAK,Propulsion,No,Yes
+OSALR-2025-0006,Starship Flight 8,2025,SpaceX,USA,PROP-SHUT,Propulsion,By design (iterative test),Yes
+OSALR-2025-0001,Firefly Alpha FLTA006,2025,Firefly,USA,SEP-ANOM,Staging/Separation,Yes,Yes
+OSALR-2025-0003,PSLV-C61 / EOS-09,2025,ISRO,India,PROP-SOLID,Propulsion,No,Yes
+OSALR-2025-0004,SpaceX Starship Ship 36 (static fire),2025,SpaceX,USA,STR-COPV,Structural,Yes,Yes
+OSALR-2025-0002,H3 (nav satellite),2025,JAXA,Japan,PROP-SHUT,Avionics/Software,Yes,Yes
+OSALR-2026-0001,PSLV-C62 / EOS-N1,2026,ISRO,India,UNK-UNDISC,Undisclosed,Not yet re-flown,Yes
+OSALR-2026-0002,Long March 3B/E (Shijian 32),2026,CASC,China,UNK-UNDISC,Undisclosed,Too recent to assess,Unknown
+OSALR-2026-0003,Ceres-2 Y1 (maiden flight),2026,Galactic Energy,China,UNK-UNDISC,Undisclosed,Not yet re-flown,Unknown
+OSALR-2026-0004,KAIROS Flight 3,2026,Space One,Japan,UNK-UNDISC,Undisclosed,Not yet re-flown,Yes (3 of 3 flights failed)
+OSALR-2026-0005,Tianlong-3 Y1 (maiden flight),2026,Space Pioneer,China,UNK-UNDISC,Undisclosed,Not yet re-flown,Unknown
+OSALR-2026-0006,New Glenn NG-3 (BlueBird 7),2026,Blue Origin,USA,UNK-UNDISC,Undisclosed,Not yet re-flown,Unknown
+OSALR-2026-0007,New Glenn static-fire explosion (LC-36),2026,Blue Origin,USA,PROP-FEED;HUM-SAFETY,Propulsion,Not yet re-flown,Yes
+OSALR-2026-0008,Long March 7A (ChinaSat-4B),2026,CASC,China,UNK-UNDISC,Undisclosed,Not yet re-flown,Unknown
