@@ -38,3 +38,6 @@ main{max-width:1240px;margin:auto;padding:0 32px 40px}.primary-nav{display:flex;
 .explorer-table th:first-child,.explorer-table td:first-child{min-width:110px}
 @media(max-width:1000px){.dataset-catalog{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){.dataset-catalog{grid-template-columns:1fr}.field-table{font-size:.72rem}.field-table th,.field-table td{padding:8px}.field-table th:last-child{width:23%}}
+.more-link{font-weight:600}.more-link a{text-decoration:none}
+.entry{padding:18px 22px;margin:16px 0;background:white;border:1px solid var(--line);border-radius:6px;scroll-margin-top:1rem}.entry h3{margin:0 0 6px}.entry>p{margin:0 0 6px}.entry dl{display:grid;grid-template-columns:minmax(120px,190px) 1fr;gap:0 18px;margin:0}.entry dt{margin-top:0;padding:8px 0;border-bottom:1px solid var(--line)}.entry dd{margin:0;padding:8px 0;font-size:.86rem}
+@media(max-width:700px){.entry{padding:14px 16px}.entry dl{grid-template-columns:1fr}.entry dt{border-bottom:0;padding-bottom:0}}

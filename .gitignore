@@ -9,3 +9,6 @@ __pycache__/
 
 # Built by scripts/build.py from data/failures.csv; not committed
 osalr/osalr.db
+
+# Private maintainer notes (deploy steps etc.)
+*.private.md
